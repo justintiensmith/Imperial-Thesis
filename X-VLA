@@ -26,7 +26,7 @@ export PYTHONUNBUFFERED=1
 # Activate virtual environment
 source /vol/bitbucket/mdp25/lerobot310/bin/activate
 
-huggingface-cli login --token "$HF_TOKEN"
+hf auth login --token "$HF_TOKEN"
 
 lerobot-train \
   --dataset.repo_id=mattpidden/smolvla_apple_policy2 \
