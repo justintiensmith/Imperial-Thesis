@@ -1,0 +1,53 @@
+#!/bin/bash
+#SBATCH --job-name=xvla_train
+#SBATCH --partition=a100
+#SBATCH --gres=gpu:1
+#SBATCH --mem=48G
+#SBATCH --cpus-per-task=8
+#SBATCH --time=12:00:00
+#SBATCH --output=xvla_train_%j.out
+
+set -euo pipefail
+
+echo "Job ID: $SLURM_JOB_ID"
+echo "Running on node: $(hostname)"
+echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
+echo "Allocated GPU(s):"
+nvidia-smi
+echo "Free RAM:"
+free -h
+echo "Disk space:"
+df -h .
+echo "-------------------------"
+
+export PYTHONUNBUFFERED=1
+
+# Activate env
+source /vol/bitbucket/mdp25/lerobot310/bin/activate
+
+# Optional but often useful on clusters
+export HF_HOME="${WORKDIR:-$PWD}/.cache/huggingface"
+export TRANSFORMERS_CACHE="$HF_HOME"
+mkdir -p "$HF_HOME"
+
+# Better than hard-coding the token in the script:
+# export HF_TOKEN=...
+# huggingface-cli login --token "$HF_TOKEN"
+
+huggingface-cli login --token "$HF_TOKEN"
+
+lerobot-train \
+  --dataset.repo_id=mattpidden/so101-dataset-act \
+  --output_dir="${WORKDIR:-$PWD}/output" \
+  --job_name=xvla_run \
+  --policy.type=xvla \
+  --policy.path="lerobot/xvla-base" \
+  --policy.repo_id="mattpidden/so101_xvla_policy" \
+  --policy.dtype=bfloat16 \
+  --policy.action_mode=auto \
+  --steps=20000 \
+  --policy.device=cuda \
+  --policy.freeze_vision_encoder=false \
+  --policy.freeze_language_encoder=false \
+  --policy.train_policy_transformer=true \
+  --policy.train_soft_prompts=true
