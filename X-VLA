@@ -11,38 +11,29 @@ set -euo pipefail
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
-echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
+echo "Allocated CPUs: $SLURM_CPUS_ON_NODE"
+echo "Allocated Memory: $SLURM_MEM_PER_NODE"
 echo "Allocated GPU(s):"
 nvidia-smi
 echo "Free RAM:"
 free -h
-echo "Disk space:"
-df -h .
+echo "Disk space in /tmp:"
+df -h /tmp
 echo "-------------------------"
 
 export PYTHONUNBUFFERED=1
 
-# Activate env
+# Activate virtual environment
 source /vol/bitbucket/mdp25/lerobot310/bin/activate
-
-# Optional but often useful on clusters
-export HF_HOME="${WORKDIR:-$PWD}/.cache/huggingface"
-export TRANSFORMERS_CACHE="$HF_HOME"
-mkdir -p "$HF_HOME"
-
-# Better than hard-coding the token in the script:
-# export HF_TOKEN=...
-# huggingface-cli login --token "$HF_TOKEN"
 
 huggingface-cli login --token "$HF_TOKEN"
 
 lerobot-train \
-  --dataset.repo_id=mattpidden/so101-dataset-act \
-  --output_dir="${WORKDIR:-$PWD}/output" \
-  --job_name=xvla_run \
-  --policy.type=xvla \
+  --dataset.repo_id=mattpidden/smolvla_apple_policy2 \
+  --output_dir=./outputs/xvla_training \
+  --job_name=xvla_training \
   --policy.path="lerobot/xvla-base" \
-  --policy.repo_id="mattpidden/so101_xvla_policy" \
+  --policy.repo_id="HF_USER/xvla-your-robot" \
   --policy.dtype=bfloat16 \
   --policy.action_mode=auto \
   --steps=20000 \
