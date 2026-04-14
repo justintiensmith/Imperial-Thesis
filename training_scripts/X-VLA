@@ -41,4 +41,7 @@ lerobot-train \
   --policy.freeze_vision_encoder=false \
   --policy.freeze_language_encoder=false \
   --policy.train_policy_transformer=true \
-  --policy.train_soft_prompts=true
+  --policy.train_soft_prompts=true \
+  --rename_map='{"observation.images.claw": "observation.images.image", "observation.images.world": "observation.images.image2"}' \
+  --policy.empty_cameras=1 \
+  --policy.resize_imgs_with_padding="[768, 768]"
