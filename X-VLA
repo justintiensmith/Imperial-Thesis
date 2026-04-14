@@ -29,7 +29,7 @@ source /vol/bitbucket/mdp25/lerobot310/bin/activate
 hf auth login --token "$HF_TOKEN"
 
 lerobot-train \
-  --dataset.repo_id=mattpidden/smolvla_apple_policy2 \
+  --dataset.repo_id=mattpidden/smol-vla-test-dataset \
   --output_dir=./outputs/xvla_training \
   --job_name=xvla_training \
   --policy.path="lerobot/xvla-base" \
