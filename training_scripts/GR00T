@@ -1,0 +1,54 @@
+#!/bin/bash
+#SBATCH --partition=a100
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --cpus-per-task=8
+#SBATCH --time=24:00:00
+#SBATCH --output=train_groot_%j.out
+
+set -euo pipefail
+
+echo "Job ID: $SLURM_JOB_ID"
+echo "Running on node: $(hostname)"
+echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
+echo "Allocated GPU(s):"
+nvidia-smi
+echo "Free RAM:"
+free -h
+echo "Disk space in /tmp:"
+df -h /tmp
+echo "-------------------------"
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=0
+
+# Activate environment
+source /vol/bitbucket/mdp25/lerobot310/bin/activate
+
+# HF cache
+export HF_HOME=/vol/dissolve/matt/hf_cache
+export TRANSFORMERS_CACHE=/vol/dissolve/matt/hf_cache
+export HF_DATASETS_CACHE=/vol/dissolve/matt/hf_cache
+
+hf auth login --token "$HF_TOKEN"
+
+# Using a multi-GPU setup
+accelerate launch \
+  --multi_gpu \
+  --num_processes=1 \
+  $(which lerobot-train) \
+  --output_dir=$OUTPUT_DIR \
+  --save_checkpoint=true \
+  --batch_size=16 \
+  --steps=10000 \
+  --save_freq=1000 \
+  --log_freq=100 \
+  --policy.push_to_hub=true \
+  --policy.type=groot \
+  --policy.repo_id=justintiensmith/groot_apple_policy \
+  --policy.tune_diffusion_model=false \
+  --dataset.repo_id=mattpidden/smol-vla-test-dataset \
+  --wandb.enable=true \
+  --wandb.disable_artifact=true \
+  --job_name=groot_training \
+  --rename_map='{"observation.images.claw":"observation.images.camera1","observation.images.world":"observation.images.camera2"}'
