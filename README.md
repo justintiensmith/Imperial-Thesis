@@ -1,0 +1,3 @@
+Recording a dataset command flags:
+
+lerobot-record --robot.type=so101_follower --robot.port=/dev/tty.usbmodem5A7C1187061 --robot.id=blue_follower_arm --robot.cameras="{wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, world: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" --teleop.type=so101_leader --teleop.port=/dev/tty.usbmodem5B141114541 --teleop.id=orange_leader_arm --display_data=true --dataset.repo_id=justintiensmith/multicolour_block_pick_place --dataset.num_episodes=50 --dataset.single_task="Pick up the red block and carefully place it in the black bin" --dataset.streaming_encoding=false --dataset.encoder_threads=4 --dataset.fps=15
