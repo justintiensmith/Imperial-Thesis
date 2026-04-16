@@ -24,9 +24,9 @@ echo "-------------------------"
 export PYTHONUNBUFFERED=1
 
 # Activate virtual environment
-source /vol/bitbucket/jzt25/lerobot312/bin/activate
+source /vol/dissolve/matt/envs/lerobot
 
-hf auth login --token "$HF_TOKEN"
+hf auth login
 
 lerobot-train \
   --dataset.repo_id=mattpidden/smol-vla-test-dataset \
