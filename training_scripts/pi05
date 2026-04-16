@@ -1,0 +1,49 @@
+#!/bin/bash
+#SBATCH --partition=a100
+#SBATCH --gres=gpu:1
+#SBATCH --mem=64G
+#SBATCH --cpus-per-task=4
+#SBATCH --time=24:00:00
+#SBATCH --output=train_%j.out
+
+echo "Job ID: $SLURM_JOB_ID"
+echo "Running on node: $(hostname)"
+echo "Allocated CPUs: $SLURM_CPUS_ON_NODE"
+echo "Allocated Memory: $SLURM_MEM_PER_NODE"
+echo "Allocated GPU(s):"
+nvidia-smi
+echo "Free RAM:"
+free -h
+echo "Disk space in /tmp:"
+df -h /tmp
+echo "-------------------------"
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=0
+
+# activate virtual environment
+export PATH="/vol/bitbucket/jzt25/miniforge3/bin:$PATH"
+source /vol/bitbucket/jzt25/miniforge3/etc/profile.d/conda.sh
+conda activate /vol/dissolve/matt/envs/lerobot
+
+export HF_HOME=/vol/bitbucket/jzt25/hf_cache
+export TRANSFORMERS_CACHE=/vol/bitbucket/jzt25/hf_cache
+export HF_DATASETS_CACHE=/vol/bitbucket/jzt25/hf_cache
+hf auth login 
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
+  --policy.type=pi05 \
+  --output_dir=/vol/bitbucket/jzt25/outputs/pi05_40k_multicolour_block_pick_place \
+  --job_name=pi05_training \
+  --policy.pretrained_path=lerobot/pi05_base \
+  --policy.dtype=bfloat16 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_vision_encoder=true \
+  --policy.train_expert_only=false \
+  --steps=40000 \
+  --batch_size=16 \
+  --save_freq 1000 \
+  --policy.device=cuda \
+  --policy.repo_id=justintiensmith/pi05_40k_multicolour_block_pick_place \
+  --policy.compile_model=true \
+  --policy.normalization_mapping='{"ACTION": "MEAN_STD", "STATE": "MEAN_STD", "VISUAL": "IDENTITY"}'
