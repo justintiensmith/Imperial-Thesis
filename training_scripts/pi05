@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=a16
+#SBATCH --partition=a100
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=00:10:00
+#SBATCH --time=24:00:00
 #SBATCH --output=pi05_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
@@ -25,26 +25,30 @@ export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
 source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
 conda activate lerobot
 
-export HF_HOME=/vol/dissolve/justin/hf_cache
-export TRANSFORMERS_CACHE=/vol/dissolve/justin/hf_cache
-export HF_DATASETS_CACHE=/vol/dissolve/justin/hf_cache
+# Temporary cache folder on the compute node's local SSD
+mkdir -p /tmp/jzt25_hf_cache
 
-hf auth login --token $"hugging_face_token"
+# Routing Hugging Face to use fast local drive instead of the network drive
+export HF_HOME=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+
+export HF_TOKEN=$"HF_TOKEN"
 
 lerobot-train \
   --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
   --policy.type=pi05 \
-  --output_dir=/vol/dissolve/justin/outputs/pi05_40k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/pi05_5k_multicolour_block_pick_place \
   --job_name=pi05_training \
   --policy.pretrained_path=lerobot/pi05_base \
   --policy.dtype=bfloat16 \
   --policy.gradient_checkpointing=true \
-  --policy.freeze_vision_encoder=true \
+  --policy.freeze_vision_encoder=false \
   --policy.train_expert_only=false \
-  --steps=40000 \
+  --steps=5000 \
   --batch_size=16 \
   --save_freq 1000 \
   --policy.device=cuda \
-  --policy.repo_id=justintiensmith/pi05_40k_multicolour_block_pick_place \
-  --policy.compile_model=true \
+  --policy.repo_id=justintiensmith/pi05_5k_multicolour_block_pick_place \
+  --policy.compile_model=false \
   --policy.normalization_mapping='{"ACTION": "MEAN_STD", "STATE": "MEAN_STD", "VISUAL": "IDENTITY"}'
