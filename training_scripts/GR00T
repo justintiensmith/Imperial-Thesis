@@ -1,16 +1,15 @@
 #!/bin/bash
 #SBATCH --partition=a100
 #SBATCH --gres=gpu:1
-#SBATCH --mem=32G
-#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --cpus-per-task=4
 #SBATCH --time=24:00:00
-#SBATCH --output=train_groot_%j.out
-
-set -euo pipefail
+#SBATCH --output=gr00t_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
-echo "Allocated CPUs: $SLURM_CPUS_PER_TASK"
+echo "Allocated CPUs: $SLURM_CPUS_ON_NODE"
+echo "Allocated Memory: $SLURM_MEM_PER_NODE"
 echo "Allocated GPU(s):"
 nvidia-smi
 echo "Free RAM:"
@@ -18,19 +17,23 @@ free -h
 echo "Disk space in /tmp:"
 df -h /tmp
 echo "-------------------------"
-
 export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES=0
 
-# Activate environment
-source /vol/bitbucket/mdp25/lerobot310/bin/activate
+# Activate virtual environment
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot
 
-# HF cache
-export HF_HOME=/vol/dissolve/matt/hf_cache
-export TRANSFORMERS_CACHE=/vol/dissolve/matt/hf_cache
-export HF_DATASETS_CACHE=/vol/dissolve/matt/hf_cache
+# Temporary cache folder on the compute node's local SSD
+mkdir -p /tmp/jzt25_hf_cache
 
-hf auth login --token "$HF_TOKEN"
+# Routing Hugging Face to use fast local drive instead of the network drive
+export HF_HOME=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+
+export HF_TOKEN=$"HF_TOKEN"
 
 # Using a multi-GPU setup
 accelerate launch \
