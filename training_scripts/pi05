@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --partition=a100
+#SBATCH --partition=a16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=24:00:00
-#SBATCH --output=train_%j.out
+#SBATCH --time=00:10:00
+#SBATCH --output=pi05_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -20,20 +20,21 @@ echo "-------------------------"
 export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES=0
 
-# activate virtual environment
-export PATH="/vol/bitbucket/jzt25/miniforge3/bin:$PATH"
-source /vol/bitbucket/jzt25/miniforge3/etc/profile.d/conda.sh
-conda activate /vol/dissolve/matt/envs/lerobot
+# Activate virtual environment
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot
 
-export HF_HOME=/vol/bitbucket/jzt25/hf_cache
-export TRANSFORMERS_CACHE=/vol/bitbucket/jzt25/hf_cache
-export HF_DATASETS_CACHE=/vol/bitbucket/jzt25/hf_cache
-hf auth login 
+export HF_HOME=/vol/dissolve/justin/hf_cache
+export TRANSFORMERS_CACHE=/vol/dissolve/justin/hf_cache
+export HF_DATASETS_CACHE=/vol/dissolve/justin/hf_cache
+
+hf auth login --token $"hugging_face_token"
 
 lerobot-train \
   --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
   --policy.type=pi05 \
-  --output_dir=/vol/bitbucket/jzt25/outputs/pi05_40k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/pi05_40k_multicolour_block_pick_place \
   --job_name=pi05_training \
   --policy.pretrained_path=lerobot/pi05_base \
   --policy.dtype=bfloat16 \
