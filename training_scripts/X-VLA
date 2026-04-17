@@ -1,13 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=xvla_train
 #SBATCH --partition=a100
 #SBATCH --gres=gpu:1
-#SBATCH --mem=48G
-#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --cpus-per-task=4
 #SBATCH --time=12:00:00
 #SBATCH --output=xvla_train_%j.out
-
-set -euo pipefail
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -20,24 +17,36 @@ free -h
 echo "Disk space in /tmp:"
 df -h /tmp
 echo "-------------------------"
-
 export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=0
 
 # Activate virtual environment
-source /vol/dissolve/matt/envs/lerobot
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot
 
-hf auth login
+# Temporary cache folder on the compute node's local SSD
+mkdir -p /tmp/jzt25_hf_cache
+
+# Routing Hugging Face to use fast local drive instead of the network drive
+export HF_HOME=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+
+export HF_TOKEN=$"HF_TOKEN"
 
 lerobot-train \
-  --dataset.repo_id=mattpidden/smol-vla-test-dataset \
-  --policy.resize_imgs_with_padding='[224, 224]' \
-  --output_dir=./outputs/xvla_training \
+  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/xvla_5k_multicolour_block_pick_place \
   --job_name=xvla_training \
   --policy.path="lerobot/xvla-base" \
-  --policy.repo_id="HF_USER/xvla-your-robot" \
+  --policy.repo_id="justintiensmith/xvla_5k_multicolour_block_pick_place" \
   --policy.dtype=bfloat16 \
   --policy.action_mode=auto \
-  --steps=20000 \
+  --steps=5000 \
+  --save_freq 1000 \
+  --log_freq=100 \
+  --batch_size=16 \
   --policy.device=cuda \
   --policy.freeze_vision_encoder=false \
   --policy.freeze_language_encoder=false \
