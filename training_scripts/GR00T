@@ -3,7 +3,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=24:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=gr00t_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
@@ -35,23 +35,23 @@ export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
 
 export HF_TOKEN=$"HF_TOKEN"
 
-# Using a multi-GPU setup
+# Using a single-GPU setup
 accelerate launch \
-  --multi_gpu \
   --num_processes=1 \
   $(which lerobot-train) \
-  --output_dir=$OUTPUT_DIR \
+  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
+  --dataset.video_backend=pyav \
+  --output_dir=/vol/dissolve/justin/outputs/gr00t_10k_multicolour_block_pick_place \
   --save_checkpoint=true \
   --batch_size=16 \
   --steps=10000 \
   --save_freq=1000 \
-  --log_freq=100 \
+  --log_freq=10 \
   --policy.push_to_hub=true \
   --policy.type=groot \
-  --policy.repo_id=justintiensmith/groot_apple_policy \
+  --policy.repo_id=justintiensmith/gr00t_10k_multicolour_block_pick_place \
   --policy.tune_diffusion_model=false \
-  --dataset.repo_id=mattpidden/smol-vla-test-dataset \
-  --wandb.enable=true \
+  --wandb.enable=false \
   --wandb.disable_artifact=true \
-  --job_name=groot_training \
-  --rename_map='{"observation.images.claw":"observation.images.camera1","observation.images.world":"observation.images.camera2"}'
+  --job_name=gr00t_training \
+  --rename_map='{"observation.images.wrist":"observation.images.camera1","observation.images.world":"observation.images.camera2"}' 
