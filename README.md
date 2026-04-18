@@ -6,7 +6,7 @@ Running Inference:
 
 Terminal 1:
 
-ssh jzt2525@devi.doc.ic.ac.uk
+ssh jzt25@devi.doc.ic.ac.uk
 
 export HF_HOME=/vol/dissolve/justin/hf_cache
 export TRANSFORMERS_CACHE=/vol/dissolve/justin/hf_cache
