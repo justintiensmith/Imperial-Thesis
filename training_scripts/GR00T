@@ -4,7 +4,7 @@
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
 #SBATCH --time=12:00:00
-#SBATCH --output=gr00t_train_%j.out
+#SBATCH --output=gr00t2_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -38,14 +38,14 @@ export HF_TOKEN=$"HF_TOKEN"
 # Using a single-GPU setup
 accelerate launch \
   --num_processes=1 \
+  --mixed_precision=bf16 \
   $(which lerobot-train) \
   --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
   --dataset.video_backend=pyav \
   --output_dir=/vol/dissolve/justin/outputs/gr00t2_10k_multicolour_block_pick_place \
   --save_checkpoint=true \
   --batch_size=16 \
-  --mixed_precision=bf16 \
-  --dataloader_num_workers=4 \
+  --num_workers=4 \
   --steps=10000 \
   --save_freq=1000 \
   --log_freq=10 \
@@ -55,5 +55,5 @@ accelerate launch \
   --policy.tune_diffusion_model=true \
   --wandb.enable=false \
   --wandb.disable_artifact=true \
-  --job_name=gr00t_training \
+  --job_name=gr00t2_training \
   --rename_map='{"observation.images.wrist":"observation.images.camera1","observation.images.world":"observation.images.camera2"}' 
