@@ -41,16 +41,18 @@ accelerate launch \
   $(which lerobot-train) \
   --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
   --dataset.video_backend=pyav \
-  --output_dir=/vol/dissolve/justin/outputs/gr00t_10k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/gr00t2_10k_multicolour_block_pick_place \
   --save_checkpoint=true \
   --batch_size=16 \
+  --mixed_precision=bf16 \
+  --dataloader_num_workers=4 \
   --steps=10000 \
   --save_freq=1000 \
   --log_freq=10 \
   --policy.push_to_hub=true \
   --policy.type=groot \
-  --policy.repo_id=justintiensmith/gr00t_10k_multicolour_block_pick_place \
-  --policy.tune_diffusion_model=false \
+  --policy.repo_id=justintiensmith/gr00t2_10k_multicolour_block_pick_place \
+  --policy.tune_diffusion_model=true \
   --wandb.enable=false \
   --wandb.disable_artifact=true \
   --job_name=gr00t_training \
