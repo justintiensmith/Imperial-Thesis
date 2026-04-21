@@ -3,8 +3,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=24:00:00
-#SBATCH --output=pi05_train_%j.out
+#SBATCH --time=12:00:00
+#SBATCH --output=pi05_10k_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -36,19 +36,19 @@ export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
 export HF_TOKEN=$"HF_TOKEN"
 
 lerobot-train \
-  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
+  --dataset.repo_id=justintiensmith/multicolour_block_pick_place_2 \
   --policy.type=pi05 \
-  --output_dir=/vol/dissolve/justin/outputs/pi05_5k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/pi05_10k_multicolour_block_pick_place_2 \
   --job_name=pi05_training \
   --policy.pretrained_path=lerobot/pi05_base \
   --policy.dtype=bfloat16 \
   --policy.gradient_checkpointing=true \
   --policy.freeze_vision_encoder=false \
   --policy.train_expert_only=false \
-  --steps=5000 \
-  --batch_size=16 \
+  --steps=10000 \
+  --batch_size=32 \
   --save_freq 1000 \
   --policy.device=cuda \
-  --policy.repo_id=justintiensmith/pi05_5k_multicolour_block_pick_place \
+  --policy.repo_id=justintiensmith/pi05_10k_multicolour_block_pick_place_2 \
   --policy.compile_model=false \
   --policy.normalization_mapping='{"ACTION": "MEAN_STD", "STATE": "MEAN_STD", "VISUAL": "IDENTITY"}'
