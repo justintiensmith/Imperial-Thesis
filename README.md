@@ -8,6 +8,10 @@ Terminal 1:
 
 ssh jzt25@devi.doc.ic.ac.uk
 
+or to share port on local device:
+
+ssh -L 8080:localhost:8080 jzt25@devi.doc.ic.ac.uk
+
 export HF_HOME=/vol/dissolve/justin/hf_cache
 export TRANSFORMERS_CACHE=/vol/dissolve/justin/hf_cache
 export HF_DATASETS_CACHE=/vol/dissolve/justin/hf_cache
@@ -25,9 +29,5 @@ conda activate /vol/dissolve/justin/miniforge3/envs/lerobot
 python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
 
 Terminal 2:
-
-ssh -N -L 8080:localhost:8080 jzt25@devi.doc.ic.ac.uk
-
-Terminal 3:
 
 python -m lerobot.async_inference.robot_client     --server_address=127.0.0.1:8080     --robot.type=so101_follower     --robot.port=/dev/tty.usbmodem5A7C1187061     --robot.id=blue_follower_arm     --robot.cameras="{wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}, world: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}"     --task="Pick up the red block and carefully place it in the black bin"     --policy_type=pi05     --pretrained_name_or_path=justintiensmith/pi05_30k_multicolour_block_pick_place     --policy_device=cuda     --actions_per_chunk=50     --chunk_size_threshold=0.5     --aggregate_fn_name=weighted_average  
