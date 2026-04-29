@@ -18,6 +18,7 @@ lerobot-record \
   --dataset.streaming_encoding=false \
   --dataset.encoder_threads=4 \
   --dataset.fps=15
+```
 
 lerobot-record --robot.type=so101_follower --robot.port=/dev/tty.usbmodem5A7C1187061 --robot.id=blue_follower --robot.cameras="{wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 25}, world: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" --teleop.type=so101_leader --teleop.port=/dev/tty.usbmodem5AB01583971  --teleop.id=blue_leader --display_data=true --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place --dataset.num_episodes=1 --dataset.single_task="Pick up the blue block and carefully place it in the black bin" --dataset.streaming_encoding=true --dataset.encoder_threads=4 --dataset.fps=25 --resume=true --dataset.root=./data/multicolour_block_pick_place_2
 
