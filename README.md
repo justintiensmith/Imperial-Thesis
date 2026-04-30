@@ -3,7 +3,9 @@
 This repository contains scripts and documentation for training and running inference on SO-101 robot arms. Training scripts are located in the /training_scripts folder. 
 
 More documentation can be found here: https://huggingface.co/docs/lerobot
+
 Matt's models and datasets: https://huggingface.co/mattpidden
+
 My models and datasets: https://huggingface.co/justintiensmith
 
 ## Robot Port Reference
