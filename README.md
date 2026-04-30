@@ -33,6 +33,19 @@ lerobot-calibrate \
     --teleop.id=blue_leader 
 ```
 
+## Teleoperation
+
+```bash
+# Blue
+lerobot-teleoperate \
+    --robot.type=so101_follower \
+    --robot.port=/dev/tty.usbmodem5A7C1187061 \
+    --robot.id=blue_follower\
+    --teleop.type=so101_leader \
+    --teleop.port=/dev/tty.usbmodem5AB01583971 \
+    --teleop.id=blue_leader
+```
+
 ## Datasets
 
 #### Recording a Dataset
