@@ -103,12 +103,26 @@ python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
 In a new terminal, activate the relevant lerobot environment locally and then run the robot client to connect to the policy server and execute the task:
 
 ```bash
-python -m lerobot.async_inference.robot_client     --server_address=127.0.0.1:8080     --robot.type=so101_follower     --robot.port=/dev/tty.usbmodem5B141129191 --robot.id=orange_follower --robot.cameras="{wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 25}, world: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}"     --task="Pick up the red block and carefully place it in the black bin"     --policy_type=pi05     --pretrained_name_or_path=mattpidden/pi05_5k_precision-multicolour_block_pick_place --policy_device=cuda     --actions_per_chunk=50     --chunk_size_threshold=0.5     --aggregate_fn_name=weighted_average 
+python -m lerobot.async_inference.robot_client \
+    --server_address=127.0.0.1:8080 \
+    --robot.type=so101_follower \
+    --robot.port=/dev/tty.usbmodem5B141129191 \
+    --robot.id=orange_follower \
+    --robot.cameras="{wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 25}, world: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}" \
+    --task="Pick up the red block and carefully place it in the black bin" \
+    --policy_type=pi05 \
+    --pretrained_name_or_path=mattpidden/pi05_5k_precision-multicolour_block_pick_place \
+    --policy_device=cuda \
+    --actions_per_chunk=50 \
+    --chunk_size_threshold=0.5 \
+    --aggregate_fn_name=weighted_average
 ```
 
 ## Human in the Loop (HIL)
 
 #### Dataset Collection
+Example HIL dataset collection for SmolVLA.
+
 ```bash
 python examples/hil/hil_data_collection.py \
     --rtc.enabled=true \
