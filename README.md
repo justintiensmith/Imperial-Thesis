@@ -1,6 +1,10 @@
 # LeRobot Training & Inference Notes
 
-This repository contains scripts and documentation for training and running inference on SO-101 robot arms. Training scripts are located in the /training folder. More documentation can be found here: https://huggingface.co/docs/lerobot
+This repository contains scripts and documentation for training and running inference on SO-101 robot arms. Training scripts are located in the /training_scripts folder. 
+
+More documentation can be found here: https://huggingface.co/docs/lerobot
+Matt's models and datasets: https://huggingface.co/mattpidden
+My models and datasets: https://huggingface.co/justintiensmith
 
 ## Robot Port Reference
 
@@ -152,10 +156,14 @@ python examples/hil/hil_data_collection.py \
     ESC    - Stop and push to hub
 ```
 
-## Other Helpful Commands/Notes:
+## Other Helpful Commands:
 
 ```bash
 lerobot-find-cameras opencv
 
 lerobot --help
 ```
+
+## Helpful Resources:
+
+Clothes folding blog: https://huggingface.co/spaces/lerobot/robot-folding
