@@ -8,6 +8,10 @@ Matt's models and datasets: https://huggingface.co/mattpidden
 
 My models and datasets: https://huggingface.co/justintiensmith
 
+Project website/blog: https://github.com/justintiensmith/vla-research/tree/main
+
+Matt's github: https://github.com/mattpidden/vla-research
+
 ## Robot Port Reference
 
 | Robot Role | Color | Port Address |
