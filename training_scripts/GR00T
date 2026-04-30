@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --partition=a100
+#SBATCH --partition=a16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
 #SBATCH --time=12:00:00
-#SBATCH --output=gr00t2_train_%j.out
+#SBATCH --output=gr00t_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -23,7 +23,7 @@ export CUDA_VISIBLE_DEVICES=0
 # Activate virtual environment
 export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
 source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
-conda activate lerobot
+conda activate lerobot_groot
 
 # Temporary cache folder on the compute node's local SSD
 mkdir -p /tmp/jzt25_hf_cache
@@ -35,25 +35,43 @@ export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
 
 export HF_TOKEN=$"HF_TOKEN"
 
+lerobot-train \
+ --policy.type=groot \
+ --policy.push_to_hub=true \
+ --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place \
+ --batch_size=32 \
+ --steps=5000 \
+ --save_checkpoint=true \
+ --wandb.enable=false \
+ --save_freq=100 \
+ --log_freq=100 \
+ --policy.tune_diffusion_model=false \
+ --output_dir=/vol/dissolve/justin/outputs/gr00t_5k_red_block_precision-multicolour_block_pick_place \
+ --rename_map='{"observation.images.wrist":"observation.images.right","observation.images.world":"observation.images.top"}' 
+
+
+
+
+
 # Using a single-GPU setup
 accelerate launch \
   --num_processes=1 \
   --mixed_precision=bf16 \
   $(which lerobot-train) \
-  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
+  --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place \
   --dataset.video_backend=pyav \
-  --output_dir=/vol/dissolve/justin/outputs/gr00t2_10k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/gr00t_5k_red_block_precision-multicolour_block_pick_place \
   --save_checkpoint=true \
   --batch_size=16 \
   --num_workers=4 \
-  --steps=10000 \
-  --save_freq=1000 \
+  --steps=5000 \
+  --save_freq 1000 \
   --log_freq=10 \
   --policy.push_to_hub=true \
   --policy.type=groot \
-  --policy.repo_id=justintiensmith/gr00t2_10k_multicolour_block_pick_place \
+  --policy.repo_id=justintiensmith/gr00t_5k_red_block_precision-multicolour_block_pick_place \
   --policy.tune_diffusion_model=true \
   --wandb.enable=false \
   --wandb.disable_artifact=true \
-  --job_name=gr00t2_training \
-  --rename_map='{"observation.images.wrist":"observation.images.camera1","observation.images.world":"observation.images.camera2"}' 
+  --job_name=gr00t_training \
+  --rename_map='{"observation.images.wrist":"observation.images.right","observation.images.world":"observation.images.top"}' 
