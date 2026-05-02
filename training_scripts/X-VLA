@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=a100
+#SBATCH --partition=a16
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=12:00:00
+#SBATCH --time=00:10:00
 #SBATCH --output=xvla_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
@@ -23,7 +23,7 @@ export CUDA_VISIBLE_DEVICES=0
 # Activate virtual environment
 export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
 source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
-conda activate lerobot
+conda activate lerobot_xvla
 
 # Temporary cache folder on the compute node's local SSD
 mkdir -p /tmp/jzt25_hf_cache
@@ -33,24 +33,25 @@ export HF_HOME=/tmp/jzt25_hf_cache
 export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
 export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
 
-export HF_TOKEN=$"HF_TOKEN"
+hf auth login
+#export HF_TOKEN=$"HF_TOKEN"
 
 lerobot-train \
   --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
-  --output_dir=/vol/dissolve/justin/outputs/xvla_5k_multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/xvla_10k_multicolour_block_pick_place \
   --job_name=xvla_training \
   --policy.path="lerobot/xvla-base" \
   --policy.repo_id="justintiensmith/xvla_5k_multicolour_block_pick_place" \
   --policy.dtype=bfloat16 \
   --policy.action_mode=auto \
-  --steps=5000 \
+  --steps=10000 \
   --save_freq 1000 \
   --log_freq=100 \
   --batch_size=16 \
   --policy.device=cuda \
   --policy.freeze_vision_encoder=false \
-  --policy.freeze_language_encoder=false \
+  --policy.freeze_language_encoder=true \
   --policy.train_policy_transformer=true \
   --policy.train_soft_prompts=true \
-  --rename_map='{"observation.images.claw": "observation.images.image", "observation.images.world": "observation.images.image2"}' \
+  --rename_map='{"observation.images.wrist": "observation.images.image", "observation.images.world": "observation.images.image2"}' \
   --policy.empty_cameras=1
