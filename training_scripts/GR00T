@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --partition=a16
+#SBATCH --partition=a100
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=00:10:00
-#SBATCH --output=gr00t_10k_train_%j.out
+#SBATCH --time=16:00:00
+#SBATCH --output=gr00t_50k_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on node: $(hostname)"
@@ -33,29 +33,27 @@ export HF_HOME=/tmp/jzt25_hf_cache
 export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
 export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
 
-export HF_TOKEN=$"HF_TOKEN"
+export HF_TOKEN=$HUGGING_FACE_TOKEN
 
-# Using a single-GPU setup
 accelerate launch \
   --num_processes=1 \
   --mixed_precision=bf16 \
+  --gradient_accumulation_steps=2 \
   $(which lerobot-train) \
   --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place \
   --dataset.video_backend=pyav \
-  --output_dir=/vol/dissolve/justin/outputs/gr00t_10k_red_block_precision-multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/gr00t_50k_red_block_precision-multicolour_block_pick_place \
   --save_checkpoint=true \
-  --batch_size=16 \
+  --batch_size=32 \
   --num_workers=4 \
-  --steps=10000 \
+  --steps=50000 \
   --save_freq 1000 \
   --log_freq=10 \
   --policy.push_to_hub=true \
   --policy.type=groot \
-  --policy.repo_id=justintiensmith/gr00t_10k_red_block_precision-multicolour_block_pick_place \
+  --policy.repo_id=justintiensmith/gr00t_50k_red_block_precision-multicolour_block_pick_place \
   --policy.tune_diffusion_model=true \
   --wandb.enable=false \
   --wandb.disable_artifact=true \
-  --job_name=gr00t_10k_training \
-  --rename_map='{"observation.images.wrist":"observation.images.right","observation.images.world":"observation.images.top"}' 
-
-rm -rf /tmp/jzt25_hf_cache
+  --job_name=gr00t_50k_training \
+  --rename_map='{"observation.images.wrist":"observation.images.right","observation.images.world":"observation.images.top"}'
