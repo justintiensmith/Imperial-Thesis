@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=a16
+#SBATCH --partition=a100
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
-#SBATCH --time=00:10:00
+#SBATCH --time=16:00:00
 #SBATCH --output=xvla_train_%j.out
 
 echo "Job ID: $SLURM_JOB_ID"
@@ -37,21 +37,23 @@ hf auth login
 #export HF_TOKEN=$"HF_TOKEN"
 
 lerobot-train \
-  --dataset.repo_id=justintiensmith/multicolour_block_pick_place \
-  --output_dir=/vol/dissolve/justin/outputs/xvla_10k_multicolour_block_pick_place \
-  --job_name=xvla_training \
+  --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place \
+  --output_dir=/vol/dissolve/justin/outputs/xvla_25k \
+  --job_name=xvla \
   --policy.path="lerobot/xvla-base" \
-  --policy.repo_id="justintiensmith/xvla_5k_multicolour_block_pick_place" \
+  --policy.repo_id="justintiensmith/red_block_precision-multicolour_block_pick_place" \
   --policy.dtype=bfloat16 \
   --policy.action_mode=auto \
-  --steps=10000 \
-  --save_freq 1000 \
-  --log_freq=100 \
-  --batch_size=16 \
   --policy.device=cuda \
+  --steps=25000 \
+  --batch_size=32 \
+  --num_workers=8 \
+  --save_freq 1000 \
+  --log_freq=50 \
   --policy.freeze_vision_encoder=false \
-  --policy.freeze_language_encoder=true \
+  --policy.freeze_language_encoder=false \
   --policy.train_policy_transformer=true \
   --policy.train_soft_prompts=true \
+  --policy.empty_cameras=1 \
   --rename_map='{"observation.images.wrist": "observation.images.image", "observation.images.world": "observation.images.image2"}' \
-  --policy.empty_cameras=1
+  --policy.push_to_hub=true
