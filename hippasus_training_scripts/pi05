@@ -1,1 +1,47 @@
+#!/bin/bash
+set -e
 
+echo "Running on node: $(hostname)"
+echo "GPU info:"
+nvidia-smi
+echo "Free RAM:"
+free -h
+echo "Disk space:"
+df -h
+echo "-------------------------"
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=0
+
+# Activate conda environment
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_pi05
+
+# Cache on local disk
+mkdir -p /tmp/jzt25_hf_cache
+export HF_HOME=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+export HF_HUB_CACHE=/tmp/jzt25_hf_cache
+
+# Output directory
+mkdir -p /vol/dissolve/justin/outputs/pi05_1k_red_block_precision_multicolour_block_pick_pla>
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/red_block_precision-multicolour_block_pick_place \
+  --policy.type=pi05 \
+  --output_dir=/vol/dissolve/justin/outputs/pi05_1k_red_block_precision_multicolour_block_pi>
+  --job_name=pi05_training \
+  --policy.pretrained_path=lerobot/pi05_base \
+  --policy.dtype=bfloat16 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_vision_encoder=false \
+  --policy.train_expert_only=false \
+  --steps=1000 \
+  --batch_size=32 \
+  --save_freq=100 \
+  --policy.device=cuda \
+  --policy.repo_id=justintiensmith/pi05_1k_red_block_precision_multicolour_block_pick_place \
+  --policy.compile_model=false \
+  --policy.normalization_mapping='{"ACTION": "MEAN_STD", "STATE": "MEAN_STD", "VISUAL": "IDE>
