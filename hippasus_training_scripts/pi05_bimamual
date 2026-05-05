@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+echo "Running on node: $(hostname)"
+echo "GPU info:"
+nvidia-smi
+echo "Free RAM:"
+free -h
+echo "Disk space:"
+df -h
+echo "-------------------------"
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=1
+
+# Activate conda environment
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_pi05
+
+# Cache model/dataset files on local disk
+mkdir -p /tmp/jzt25_hf_cache
+export HF_HUB_CACHE=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+
+echo "Using Python: $(which python)"
+echo "Using lerobot-train: $(which lerobot-train)"
+python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0))"
+
+# Output directory
+mkdir -p /vol/dissolve/justin/outputs/pi05_500_bimanual_place_block_in_box
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/bimanual_place_block_in_box \
+  --policy.type=pi05 \
+  --output_dir=/vol/dissolve/justin/outputs/pi05_500_bimanual_place_block_in_box \
+  --job_name=pi05_bimanual_training \
+  --policy.pretrained_path=lerobot/pi05_base \
+  --policy.dtype=bfloat16 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_vision_encoder=false \
+  --policy.train_expert_only=false \
+  --steps=500 \
+  --batch_size=16 \
+  --save_freq=500 \
+  --policy.device=cuda \
+  --policy.repo_id=justintiensmith/pi05_500_bimanual_place_block_in_box \
+  --policy.compile_model=false \
+  --policy.normalization_mapping='{"ACTION": "MEAN_STD", "STATE": "MEAN_STD", "VISUAL": "IDENTITY"}'
