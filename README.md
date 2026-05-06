@@ -39,8 +39,9 @@ lerobot-calibrate \
 
 ## Teleoperation
 
+#### Blue Arm
+
 ```bash
-# Blue
 lerobot-teleoperate \
     --robot.type=so101_follower \
     --robot.port=/dev/tty.usbmodem5A7C1187061 \
@@ -50,9 +51,23 @@ lerobot-teleoperate \
     --teleop.id=blue_leader
 ```
 
+#### Bimanual 
+
+```bash
+lerobot-teleoperate \
+    --robot.type=bi_so_follower \
+    --robot.left_arm_config.port=/dev/tty.usbmodem5B141129191 \
+    --robot.right_arm_config.port=/dev/tty.usbmodem5A7C1187061 \
+    --robot.id=bimanual_follower \
+    --teleop.type=bi_so_leader \
+    --teleop.left_arm_config.port=/dev/tty.usbmodem5B141114541 \
+    --teleop.right_arm_config.port=/dev/tty.usbmodem5AB01583971 \
+    --teleop.id=bimanual_leader
+```
+
 ## Datasets
 
-#### Recording a Dataset
+#### Recording a dataset for a single arm
 To record a new dataset, use the `lerobot-record` command. The flags below configure the follower/leader arms, camera streams, and dataset parameters.
 
 ```bash
@@ -73,7 +88,31 @@ lerobot-record \
   --dataset.fps=25
 ```
 
-#### Downloading Dataset:
+#### Recording a dataset for bimanual
+```bash
+lerobot-record \
+  --robot.type=bi_so_follower \
+  --robot.left_arm_config.port=/dev/tty.usbmodem5B141129191 \
+  --robot.right_arm_config.port=/dev/tty.usbmodem5A7C1187061 \
+  --robot.id=bimanual_follower \
+  --robot.left_arm_config.cameras='{ left: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 25}, top: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30} }' \
+  --robot.right_arm_config.cameras='{ right: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 25} }' \
+  --teleop.type=bi_so_leader \
+  --teleop.left_arm_config.port=/dev/tty.usbmodem5B141114541 \
+  --teleop.right_arm_config.port=/dev/tty.usbmodem5AB01583971 \
+  --teleop.id=bimanual_leader \
+  --display_data=true \
+  --dataset.repo_id=justintiensmith/bimanual_block_in_box \
+  --dataset.num_episodes=10 \
+  --dataset.single_task="Open the cardboard box and put the green block inside of it." \
+  --dataset.streaming_encoding=true \
+  --dataset.encoder_threads=4 \
+  --dataset.fps=25 \
+  --dataset.root=./data/bimanual_block_in_box \
+  --resume=true
+```
+
+#### Downloading dataset:
 
 ```bash
 hf download justintiensmith/consistent-block-pick-and-place-into-basket-large \
@@ -125,6 +164,7 @@ python -m lerobot.async_inference.policy_server --host=127.0.0.1 --port=8080
 #### Terminal 2: Robot Client
 In a new terminal, activate the relevant lerobot environment locally and then run the robot client to connect to the policy server and execute the task:
 
+###### Single Arm:
 ```bash
 python -m lerobot.async_inference.robot_client \
     --server_address=127.0.0.1:8080 \
@@ -135,6 +175,26 @@ python -m lerobot.async_inference.robot_client \
     --task="Pick up the red block and carefully place it in the black bin" \
     --policy_type=pi05 \
     --pretrained_name_or_path=mattpidden/pi05_5k_precision-multicolour_block_pick_place \
+    --policy_device=cuda \
+    --actions_per_chunk=50 \
+    --chunk_size_threshold=0.5 \
+    --aggregate_fn_name=weighted_average
+```
+
+###### Bimanual:
+Bimanual inference:
+```bash
+python -m lerobot.async_inference.robot_client \
+    --server_address=127.0.0.1:8080 \
+    --robot.type=bi_so_follower \
+    --robot.left_arm_config.port=/dev/tty.usbmodem5B141129191 \
+    --robot.right_arm_config.port=/dev/tty.usbmodem5A7C1187061 \
+    --robot.id=bimanual_follower \
+    --robot.left_arm_config.cameras='{left: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 25}, top: {type: opencv, index_or_path: 1, width: 640, height: 480, fps: 30}}' \                                                                                                                                        
+    --robot.right_arm_config.cameras='{right: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 25}}' \
+    --task="Open the cardboard box and put the green block inside of it." \
+    --policy_type=pi05 \
+    --pretrained_name_or_path=justintiensmith/pi05_1k_bimanual_green_block_in_box-multicolor_block_in_box  \
     --policy_device=cuda \
     --actions_per_chunk=50 \
     --chunk_size_threshold=0.5 \
