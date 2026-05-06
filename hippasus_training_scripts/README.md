@@ -109,7 +109,7 @@ After detaching, you can safely close the SSH terminal. The training will contin
 
 SSH back into Hippasus.
 
-Option A: reattach to the live tmux session:
+###### Option A: reattach to the live tmux session:
 
 ```bash
 tmux attach -t pi05_1k
@@ -123,9 +123,23 @@ Ctrl-b d
 
 Lowkey sus doing this. Only really need to reattach if you want to kill the training run. Option B is preferred. 
 
-Option B: check the log without reattaching:
+###### Option B: check the log without reattaching:
 
 ```bash
 cd ~/Documents/HippasusScripts
 tail -f pi05_1k_train.log
+```
+
+#### 9. Miscellaneous:
+
+To list all the tmux sessions: 
+
+```bash
+tmux ls
+```
+
+To kill a tmux session:
+
+```bash
+tmux kill-session -t pi05_1k
 ```
