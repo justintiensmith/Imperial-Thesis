@@ -14,12 +14,12 @@ Matt's github: https://github.com/mattpidden/vla-research
 
 ## Robot Port Reference
 
-| Robot Role | Color | Port Address |
-| :--- | :--- | :--- |
-| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` |
-| **Follower** | Blue | `/dev/tty.usbmodem5A7C1187061` |
-| **Leader** | Orange | `/dev/tty.usbmodem5B141114541` |
-| **Follower** | Orange | `/dev/tty.usbmodem5B141129191` |
+| Robot Role | Color | Mac Port Address | Hippasus Port Address
+| :--- | :--- | :--- |:--- |
+| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` | `/dev/ttyACM0`
+| **Follower** | Blue | `/dev/tty.usbmodem5A7C1187061` | `/dev/ttyACM1`
+| **Leader** | Orange | `/dev/tty.usbmodem5B141114541` | ``
+| **Follower** | Orange | `/dev/tty.usbmodem5B141129191` | ``
 
 ## Calibrating the Robot
 
