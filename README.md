@@ -44,10 +44,10 @@ lerobot-calibrate \
 ```bash
 lerobot-teleoperate \
     --robot.type=so101_follower \
-    --robot.port=/dev/tty.usbmodem5A7C1187061 \
+    --robot.port=/dev/ttyACM0 \
     --robot.id=blue_follower\
     --teleop.type=so101_leader \
-    --teleop.port=/dev/tty.usbmodem5AB01583971 \
+    --teleop.port=/dev/ttyACM3 \
     --teleop.id=blue_leader
 ```
 
@@ -56,12 +56,12 @@ lerobot-teleoperate \
 ```bash
 lerobot-teleoperate \
     --robot.type=bi_so_follower \
-    --robot.left_arm_config.port=/dev/tty.usbmodem5B141129191 \
-    --robot.right_arm_config.port=/dev/tty.usbmodem5A7C1187061 \
+    --robot.left_arm_config.port=/dev/ttyACM1 \
+    --robot.right_arm_config.port=/dev/ttyACM0 \
     --robot.id=bimanual_follower \
     --teleop.type=bi_so_leader \
-    --teleop.left_arm_config.port=/dev/tty.usbmodem5B141114541 \
-    --teleop.right_arm_config.port=/dev/tty.usbmodem5AB01583971 \
+    --teleop.left_arm_config.port=/dev/ttyACM2 \
+    --teleop.right_arm_config.port=/dev/ttyACM3 \
     --teleop.id=bimanual_leader
 ```
 
