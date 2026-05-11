@@ -16,10 +16,10 @@ Matt's github: https://github.com/mattpidden/vla-research
 
 | Robot Role | Color | Mac Port Address | Hippasus Port Address
 | :--- | :--- | :--- |:--- |
-| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` | `/dev/ttyACM0`
-| **Follower** | Blue | `/dev/tty.usbmodem5A7C1187061` | `/dev/ttyACM1`
-| **Leader** | Orange | `/dev/tty.usbmodem5B141114541` | ``
-| **Follower** | Orange | `/dev/tty.usbmodem5B141129191` | ``
+| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` | `/dev/ttyACM3`
+| **Follower** | Blue | `/dev/tty.usbmodem5A7C1187061` | `/dev/ttyACM0`
+| **Leader** | Orange | `/dev/tty.usbmodem5B141114541` | `/dev/ttyACM2`
+| **Follower** | Orange | `/dev/tty.usbmodem5B141129191` | `/dev/ttyACM1`
 
 ## Calibrating the Robot
 
@@ -67,7 +67,7 @@ lerobot-teleoperate \
 
 ## Datasets
 
-#### Recording a dataset for a single arm
+#### Recording a dataset for a single arm (Mac)
 To record a new dataset, use the `lerobot-record` command. The flags below configure the follower/leader arms, camera streams, and dataset parameters.
 
 ```bash
@@ -88,7 +88,7 @@ lerobot-record \
   --dataset.fps=25
 ```
 
-#### Recording a dataset for bimanual
+#### Recording a dataset for bimanual (Mac)
 ```bash
 lerobot-record \
   --robot.type=bi_so_follower \
@@ -111,6 +111,29 @@ lerobot-record \
   --dataset.root=./data/bimanual_block_in_box \
   --resume=true
 ```
+
+#### Recording a dataset for bimanual (Hippasus)
+lerobot-record \
+  --robot.type=bi_so_follower \
+  --robot.left_arm_config.port=/dev/ttyACM1 \
+  --robot.right_arm_config.port=/dev/ttyACM0 \
+  --robot.id=bimanual_follower \
+  --robot.left_arm_config.cameras='{ left: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30, fourcc: MJPG}, top: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, fourcc: MJPG} }' \
+  --robot.right_arm_config.cameras='{ right: {type: opencv, index_or_path: 4, width: 640, height: 480, fps: 30, fourcc: MJPG} }' \
+  --teleop.type=bi_so_leader \
+  --teleop.left_arm_config.port=/dev/ttyACM2 \
+  --teleop.right_arm_config.port=/dev/ttyACM3 \
+  --teleop.id=bimanual_leader \
+  --display_data=true \
+  --dataset.repo_id=justintiensmith/bimanual_block_in_box \
+  --dataset.num_episodes=10 \
+  --dataset.single_task="Open the cardboard box and put the green block inside of it." \
+  --dataset.streaming_encoding=true \
+  --dataset.encoder_threads=4 \
+  --dataset.fps=30 \
+  --dataset.root=./data/bimanual_block_in_box \
+  --resume=true \
+
 
 #### Downloading dataset:
 
