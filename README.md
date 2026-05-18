@@ -112,7 +112,27 @@ lerobot-record \
   --resume=true
 ```
 
+#### Recording a dataset for single arm (Hippasus)
+```bash
+lerobot-record
+   --robot.type=so101_follower
+   --robot.port=/dev/ttyACM0
+   --robot.id=blue_follower
+   --robot.cameras="{wrist: {type: opencv, index_or_path: 4, width: 640, height: 480, fps: 30, fourcc: MJPG}, world: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, fourcc: MJPG}}"
+   --teleop.type=so101_leader
+   --teleop.port=/dev/ttyACM1
+   --teleop.id=blue_leader
+   --display_data=true
+   --dataset.repo_id=justintiensmith/three-camera-position-red-block-pnp
+   --dataset.num_episodes=100
+   --dataset.single_task="Pick up the red block and carefully place it in the black bin"
+   --dataset.streaming_encoding=false
+   --dataset.encoder_threads=4
+   --dataset.fps=30
+```
+
 #### Recording a dataset for bimanual (Hippasus)
+```bash
 lerobot-record \
   --robot.type=bi_so_follower \
   --robot.left_arm_config.port=/dev/ttyACM1 \
@@ -133,7 +153,7 @@ lerobot-record \
   --dataset.fps=30 \
   --dataset.root=./data/bimanual_block_in_box \
   --resume=true \
-
+```
 
 #### Downloading dataset:
 
