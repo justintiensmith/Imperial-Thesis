@@ -16,7 +16,7 @@ Matt's github: https://github.com/mattpidden/vla-research
 
 | Robot Role | Color | Mac Port Address | Hippasus Port Address
 | :--- | :--- | :--- |:--- |
-| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` | `/dev/ttyACM3`
+| **Leader** | Blue | `/dev/tty.usbmodem5AB01583971` | `/dev/ttyACM1`
 | **Follower** | Blue | `/dev/tty.usbmodem5A7C1187061` | `/dev/ttyACM0`
 | **Leader** | Orange | `/dev/tty.usbmodem5B141114541` | `/dev/ttyACM2`
 | **Follower** | Orange | `/dev/tty.usbmodem5B141129191` | `/dev/ttyACM1`
