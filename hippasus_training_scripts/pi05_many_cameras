@@ -1,0 +1,40 @@
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=1
+
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_pi05
+
+export HF_TOKEN="$(cat ~/.cache/huggingface/token)"
+
+mkdir -p /tmp/jzt25_hf_cache
+export HF_HOME=/tmp/jzt25_hf_cache
+export TRANSFORMERS_CACHE=/tmp/jzt25_hf_cache
+export HF_DATASETS_CACHE=/tmp/jzt25_hf_cache
+export HF_HUB_CACHE=/tmp/jzt25_hf_cache
+
+RUN_NAME=pi05_test_many_cameras_low_res3_standard_inputs
+OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/test_many_cameras_low_res3 \
+  --dataset.root=/vol/dissolve/justin/datasets/test_many_cameras_low_res3 \
+  --policy.type=pi05 \
+  --output_dir="${OUTPUT_DIR}" \
+  --job_name="${RUN_NAME}" \
+  --policy.pretrained_path=lerobot/pi05_base \
+  --policy.dtype=bfloat16 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_vision_encoder=false \
+  --policy.train_expert_only=false \
+  --steps=1000 \
+  --batch_size=32 \
+  --num_workers=8 \
+  --save_freq=100 \
+  --policy.device=cuda \
+  --policy.repo_id=justintiensmith/pi05_test_many_cameras_low_res3_standard_inputs \
+  --policy.push_to_hub=false \
+  --policy.compile_model=false \
+  --policy.input_features='{"observation.state": {"type": "STATE", "shape": [6]}, "observation.images.wrist": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.middle": {"type": "V>
+  --policy.output_features='{"action": {"type": "ACTION", "shape": [6]}}' \
+  --policy.normalization_mapping='{"ACTION": "QUANTILES", "STATE": "QUANTILES", "VISUAL": "IDENTITY"}'
