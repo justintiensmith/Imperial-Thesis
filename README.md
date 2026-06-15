@@ -33,8 +33,8 @@ lerobot-calibrate \
 # Leader Calibration (blue)
 lerobot-calibrate \
     --teleop.type=so101_leader \
-    --teleop.port=/dev/tty.usbmodem5AB01583971 \ 
-    --teleop.id=blue_leader 
+    --teleop.port=/dev/ttyACM1 \
+    --teleop.id=blue_leader
 ```
 
 ## Teleoperation
