@@ -1,0 +1,58 @@
+#!/bin/bash
+set -euo pipefail
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=1
+
+RUN_NAME=pi05_SP_Counting
+OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
+
+# Local temp directory to avoid Python multiprocessing cleanup errors
+JOB_TMP="/tmp/${USER}_${RUN_NAME}_tmp"
+mkdir -p "${JOB_TMP}"
+
+export TMPDIR="${JOB_TMP}"
+export TEMP="${JOB_TMP}"
+export TMP="${JOB_TMP}"
+
+cleanup() {
+  rm -rf "${JOB_TMP}" || true
+}
+trap cleanup EXIT
+
+# Conda setup
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_pi05
+
+# Hugging Face setup
+export HF_HOME=/vol/dissolve/justin/hf_cache
+export HF_HUB_CACHE="${HF_HOME}/hub"
+export HF_DATASETS_CACHE="${HF_HOME}/datasets"
+export TRANSFORMERS_CACHE="${HF_HOME}/hub"
+
+export HF_TOKEN="$(cat "${HF_HOME}/token")"
+
+mkdir -p "${OUTPUT_DIR}"
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/SP_Counting \
+  --policy.type=pi05 \
+  --output_dir="${OUTPUT_DIR}" \
+  --job_name="${RUN_NAME}" \
+  --policy.pretrained_path=lerobot/pi05_base \
+  --policy.dtype=bfloat16 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_vision_encoder=false \
+  --policy.train_expert_only=false \
+  --steps=1000 \
+  --batch_size=32 \
+  --num_workers=8 \
+  --save_freq=100 \
+  --policy.device=cuda \
+  --policy.repo_id=justintiensmith/pi05_SP_Counting \
+  --policy.push_to_hub=true \
+  --policy.compile_model=false \
+  --policy.input_features='{"observation.state": {"type": "STATE", "shape": [6]}, "observation.images.wrist": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.middle": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.left": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.right": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.above": {"type": "VISUAL", "shape": [3, 480, 640]}}' \
+  --policy.output_features='{"action": {"type": "ACTION", "shape": [6]}}' \
+  --policy.normalization_mapping='{"ACTION": "QUANTILES", "STATE": "QUANTILES", "VISUAL": "IDENTITY"}'
