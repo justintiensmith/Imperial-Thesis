@@ -1,0 +1,70 @@
+#!/bin/bash
+set -euo pipefail
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=1
+
+RUN_NAME=molmoact2_SP_Counting
+OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
+
+# Local temp directory to avoid Python multiprocessing cleanup errors
+JOB_TMP="/tmp/${USER}_${RUN_NAME}_tmp"
+mkdir -p "${JOB_TMP}"
+
+export TMPDIR="${JOB_TMP}"
+export TEMP="${JOB_TMP}"
+export TMP="${JOB_TMP}"
+
+cleanup() {
+  rm -rf "${JOB_TMP}" || true
+}
+trap cleanup EXIT
+
+# Conda setup
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_molmoact2
+
+# Hugging Face setup
+export HF_HOME=/vol/dissolve/justin/hf_cache
+export HF_HUB_CACHE="${HF_HOME}/hub"
+export HF_DATASETS_CACHE="${HF_HOME}/datasets"
+export TRANSFORMERS_CACHE="${HF_HOME}/hub"
+
+export HF_TOKEN="$(cat "${HF_HOME}/token")"
+
+mkdir -p "${OUTPUT_DIR}"
+
+# Training
+lerobot-train \
+  --dataset.repo_id=justintiensmith/SP_Counting \
+  --dataset.root=/vol/dissolve/justin/datasets/SP_Counting \
+  --dataset.video_backend=pyav \
+  --dataset.image_transforms.enable=true \
+--policy.type=molmoact2 \
+--policy.checkpoint_path=allenai/MolmoAct2-SO100_101 \
+--policy.device=cuda \
+--policy.action_mode=continuous \
+--policy.train_action_expert_only=true \
+--policy.chunk_size=10 \
+--policy.n_action_steps=10 \
+--policy.setup_type="single SO-101 follower robot arm with five RGB cameras" \
+--policy.control_mode="absolute joint position control" \
+--policy.image_keys='["observation.images.wrist","observation.images.middle","observation.images.left","observation.images.right","observation.images.above"]' \
+--policy.model_dtype=bfloat16 \
+--policy.num_flow_timesteps=8 \
+--policy.gradient_checkpointing=true \
+--policy.freeze_embedding=true \
+--policy.normalize_gripper=false \
+--policy.enable_knowledge_insulation=false \
+  --policy.push_to_hub=true \
+  --policy.repo_id=justintiensmith/molmoact2_SP_Counting \
+  --job_name="${RUN_NAME}" \
+  --output_dir="${OUTPUT_DIR}" \
+  --steps=1000 \
+  --batch_size=8 \
+  --num_workers=4 \
+  --log_freq=20 \
+  --eval_freq=-1 \
+  --save_checkpoint=true \
+  --save_freq=100
