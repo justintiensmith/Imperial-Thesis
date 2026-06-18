@@ -4,7 +4,7 @@ set -euo pipefail
 export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES=0
 
-RUN_NAME=pi05_reasoning_fresh
+RUN_NAME=pi05_SP_Counting
 OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
 
 JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
@@ -34,8 +34,6 @@ export HF_HUB_CACHE="${HF_HOME}/hub"
 export HF_DATASETS_CACHE="${HF_HOME}/datasets"
 export TRANSFORMERS_CACHE="${HF_HOME}/hub"
 export HF_TOKEN="$(cat "${HF_HOME}/token")"
-
-mkdir -p "${OUTPUT_DIR}"
 
 lerobot-train \
   --dataset.repo_id=justintiensmith/SP_Counting \
