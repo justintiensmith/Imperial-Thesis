@@ -2,9 +2,9 @@
 set -euo pipefail
 
 export PYTHONUNBUFFERED=1
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 
-RUN_NAME=pi05_SP_Counting
+RUN_NAME=pi05_reasoning
 OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
 
 # Local temp directory to avoid Python multiprocessing cleanup errors
@@ -46,13 +46,14 @@ lerobot-train \
   --policy.freeze_vision_encoder=false \
   --policy.train_expert_only=false \
   --steps=1000 \
-  --batch_size=32 \
+  --wandb.enable=true \
+  --batch_size=16 \
   --num_workers=8 \
   --save_freq=100 \
   --policy.device=cuda \
   --policy.repo_id=justintiensmith/pi05_SP_Counting \
   --policy.push_to_hub=true \
   --policy.compile_model=false \
-  --policy.input_features='{"observation.state": {"type": "STATE", "shape": [6]}, "observation.images.wrist": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.middle": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.left": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.right": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.above": {"type": "VISUAL", "shape": [3, 480, 640]}}' \
+  --policy.input_features='{"observation.state": {"type": "STATE", "shape": [6]}, "observation.images.wrist": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.middle": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.above": {"type": "VISUAL", "shape": [3, 480, 640]}}' \
   --policy.output_features='{"action": {"type": "ACTION", "shape": [6]}}' \
   --policy.normalization_mapping='{"ACTION": "QUANTILES", "STATE": "QUANTILES", "VISUAL": "IDENTITY"}'
