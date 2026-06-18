@@ -53,7 +53,7 @@ lerobot-train \
 --policy.num_flow_timesteps=8 \
 --policy.gradient_checkpointing=true \
 --policy.freeze_embedding=true \
---policy.normalize_gripper=false \
+--policy.normalize_gripper=true \
 --policy.enable_knowledge_insulation=false \
   --policy.push_to_hub=true \
   --policy.repo_id=justintiensmith/molmoact2_SP_Counting \
