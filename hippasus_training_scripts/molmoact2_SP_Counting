@@ -33,8 +33,6 @@ export TRANSFORMERS_CACHE="${HF_HOME}/hub"
 
 export HF_TOKEN="$(cat "${HF_HOME}/token")"
 
-mkdir -p "${OUTPUT_DIR}"
-
 # Training
 lerobot-train \
   --dataset.repo_id=justintiensmith/SP_Counting \
@@ -48,9 +46,9 @@ lerobot-train \
 --policy.train_action_expert_only=true \
 --policy.chunk_size=10 \
 --policy.n_action_steps=10 \
---policy.setup_type="single SO-101 follower robot arm with five RGB cameras" \
+--policy.setup_type="single SO-101 follower robot arm with three RGB cameras." \
 --policy.control_mode="absolute joint position control" \
---policy.image_keys='["observation.images.wrist","observation.images.middle","observation.images.left","observation.images.right","observation.images.above"]' \
+--policy.image_keys='["observation.images.wrist","observation.images.middle","observation.images.above"]' \
 --policy.model_dtype=bfloat16 \
 --policy.num_flow_timesteps=8 \
 --policy.gradient_checkpointing=true \
@@ -62,7 +60,7 @@ lerobot-train \
   --job_name="${RUN_NAME}" \
   --output_dir="${OUTPUT_DIR}" \
   --steps=1000 \
-  --batch_size=8 \
+  --batch_size=16 \
   --num_workers=4 \
   --log_freq=20 \
   --eval_freq=-1 \
