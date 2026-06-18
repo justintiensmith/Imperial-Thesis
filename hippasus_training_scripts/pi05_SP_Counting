@@ -4,33 +4,35 @@ set -euo pipefail
 export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES=0
 
-RUN_NAME=pi05_reasoning
+RUN_NAME=pi05_reasoning_fresh
 OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
 
-# Local temp directory to avoid Python multiprocessing cleanup errors
-JOB_TMP="/tmp/${USER}_${RUN_NAME}_tmp"
-mkdir -p "${JOB_TMP}"
+JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
+WANDB_ROOT="/vol/dissolve/justin/wandb_cache/${RUN_NAME}"
+
+mkdir -p "${JOB_TMP}" "${WANDB_ROOT}/data" "${WANDB_ROOT}/cache" "${WANDB_ROOT}/artifacts"
 
 export TMPDIR="${JOB_TMP}"
 export TEMP="${JOB_TMP}"
 export TMP="${JOB_TMP}"
+
+export WANDB_DATA_DIR="${WANDB_ROOT}/data"
+export WANDB_CACHE_DIR="${WANDB_ROOT}/cache"
+export WANDB_ARTIFACT_DIR="${WANDB_ROOT}/artifacts"
 
 cleanup() {
   rm -rf "${JOB_TMP}" || true
 }
 trap cleanup EXIT
 
-# Conda setup
 export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
 source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
 conda activate lerobot_pi05
 
-# Hugging Face setup
 export HF_HOME=/vol/dissolve/justin/hf_cache
 export HF_HUB_CACHE="${HF_HOME}/hub"
 export HF_DATASETS_CACHE="${HF_HOME}/datasets"
 export TRANSFORMERS_CACHE="${HF_HOME}/hub"
-
 export HF_TOKEN="$(cat "${HF_HOME}/token")"
 
 mkdir -p "${OUTPUT_DIR}"
@@ -47,9 +49,10 @@ lerobot-train \
   --policy.train_expert_only=false \
   --steps=1000 \
   --wandb.enable=true \
+  --wandb.disable_artifact=true \
   --batch_size=16 \
   --num_workers=8 \
-  --save_freq=100 \
+  --save_freq=1000 \
   --policy.device=cuda \
   --policy.repo_id=justintiensmith/pi05_SP_Counting \
   --policy.push_to_hub=true \
