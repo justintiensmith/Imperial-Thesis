@@ -1,0 +1,86 @@
+#!/bin/bash
+set -euo pipefail
+
+export PYTHONUNBUFFERED=1
+export CUDA_VISIBLE_DEVICES=1
+
+TOTAL_FRAMES=226574
+BATCH_SIZE=32
+EPOCHS=1
+STEPS=$(( EPOCHS * ( (TOTAL_FRAMES + BATCH_SIZE - 1) / BATCH_SIZE ) ))
+SAVE_FREQ="${STEPS}"
+echo "Training for ${EPOCHS} epoch(s): ${TOTAL_FRAMES} frames, batch ${BATCH_SIZE}, steps ${STEPS}"
+
+RUN_NAME=molmoact2_Merged_Reasoning_Tasks
+OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
+
+WANDB_ROOT="/vol/dissolve/justin/wandb_cache/${RUN_NAME}"
+JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
+XDG_CACHE_HOME="/vol/dissolve/justin/xdg_cache/${RUN_NAME}"
+
+mkdir -p "${WANDB_ROOT}/data" \
+         "${WANDB_ROOT}/cache" \
+         "${WANDB_ROOT}/artifacts" \
+         "${WANDB_ROOT}/runs" \
+         "${JOB_TMP}" \
+         "${XDG_CACHE_HOME}"
+
+export WANDB_DATA_DIR="${WANDB_ROOT}/data"
+export WANDB_CACHE_DIR="${WANDB_ROOT}/cache"
+export WANDB_ARTIFACT_DIR="${WANDB_ROOT}/artifacts"
+export WANDB_DIR="${WANDB_ROOT}/runs"
+
+export TMPDIR="${JOB_TMP}"
+export TEMP="${JOB_TMP}"
+export TMP="${JOB_TMP}"
+export XDG_CACHE_HOME
+
+cleanup() {
+  rm -rf "${JOB_TMP}" || true
+}
+trap cleanup EXIT
+
+export PATH="/vol/dissolve/justin/miniforge3/bin:$PATH"
+source /vol/dissolve/justin/miniforge3/etc/profile.d/conda.sh
+conda activate lerobot_molmoact2
+
+export HF_HOME=/vol/dissolve/justin/hf_cache
+export HF_HUB_CACHE="${HF_HOME}/hub"
+export HF_DATASETS_CACHE="${HF_HOME}/datasets"
+export TRANSFORMERS_CACHE="${HF_HOME}/hub"
+export HF_LEROBOT_HOME="${HF_HOME}/lerobot"
+export HF_TOKEN="$(cat "${HF_HOME}/token")"
+
+lerobot-train \
+  --dataset.repo_id=justintiensmith/Merged_Reasoning_Tasks \
+  --dataset.video_backend=pyav \
+  --dataset.image_transforms.enable=true \
+  --policy.type=molmoact2 \
+  --policy.checkpoint_path=allenai/MolmoAct2-SO100_101 \
+  --policy.device=cuda \
+  --policy.action_mode=continuous \
+  --policy.train_action_expert_only=true \
+  --policy.chunk_size=10 \
+  --policy.n_action_steps=10 \
+  --policy.setup_type="single SO-101 follower robot arm with three RGB cameras." \
+  --policy.control_mode="absolute joint position control" \
+  --policy.image_keys='["observation.images.wrist","observation.images.middle","observation.images.above"]' \
+  --policy.model_dtype=bfloat16 \
+  --policy.num_flow_timesteps=8 \
+  --policy.gradient_checkpointing=true \
+  --policy.freeze_embedding=true \
+  --policy.normalize_gripper=true \
+  --policy.enable_knowledge_insulation=false \
+  --policy.push_to_hub=true \
+  --policy.repo_id=justintiensmith/molmoact2_Merged_Reasoning_Tasks \
+  --job_name="${RUN_NAME}" \
+  --output_dir="${OUTPUT_DIR}" \
+  --steps="${STEPS}" \
+  --batch_size="${BATCH_SIZE}" \
+  --num_workers=4 \
+  --log_freq=20 \
+  --eval_freq=-1 \
+  --save_checkpoint=true \
+  --save_freq="${SAVE_FREQ}" \
+  --wandb.enable=true \
+  --wandb.disable_artifact=true
