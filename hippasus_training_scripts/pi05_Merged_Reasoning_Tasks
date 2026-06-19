@@ -14,18 +14,23 @@ echo "Training for ${EPOCHS} epoch(s): ${TOTAL_FRAMES} frames, batch ${BATCH_SIZ
 RUN_NAME=pi05_Merged_Reasoning_Tasks
 OUTPUT_DIR=/vol/dissolve/justin/outputs/${RUN_NAME}
 
-JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
 WANDB_ROOT="/vol/dissolve/justin/wandb_cache/${RUN_NAME}"
 
-mkdir -p "${JOB_TMP}" "${WANDB_ROOT}/data" "${WANDB_ROOT}/cache" "${WANDB_ROOT}/artifacts"
-
-export TMPDIR="${JOB_TMP}"
-export TEMP="${JOB_TMP}"
-export TMP="${JOB_TMP}"
+mkdir -p "${WANDB_ROOT}/data" \
+         "${WANDB_ROOT}/cache" \
+         "${WANDB_ROOT}/artifacts" \
+         "${WANDB_ROOT}/runs"
 
 export WANDB_DATA_DIR="${WANDB_ROOT}/data"
 export WANDB_CACHE_DIR="${WANDB_ROOT}/cache"
 export WANDB_ARTIFACT_DIR="${WANDB_ROOT}/artifacts"
+export WANDB_DIR="${WANDB_ROOT}/runs"
+
+JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
+
+export TMPDIR="${JOB_TMP}"
+export TEMP="${JOB_TMP}"
+export TMP="${JOB_TMP}"
 
 cleanup() {
   rm -rf "${JOB_TMP}" || true
