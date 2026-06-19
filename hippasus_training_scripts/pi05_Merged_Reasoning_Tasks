@@ -46,6 +46,7 @@ export HF_HOME=/vol/dissolve/justin/hf_cache
 export HF_HUB_CACHE="${HF_HOME}/hub"
 export HF_DATASETS_CACHE="${HF_HOME}/datasets"
 export TRANSFORMERS_CACHE="${HF_HOME}/hub"
+export HF_LEROBOT_HOME="${HF_HOME}/lerobot"
 export HF_TOKEN="$(cat "${HF_HOME}/token")"
 
 lerobot-train \
