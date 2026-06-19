@@ -27,6 +27,7 @@ export WANDB_ARTIFACT_DIR="${WANDB_ROOT}/artifacts"
 export WANDB_DIR="${WANDB_ROOT}/runs"
 
 JOB_TMP="/vol/dissolve/justin/tmp/${USER}_${RUN_NAME}_tmp"
+mkdir -p "${JOB_TMP}"
 
 export TMPDIR="${JOB_TMP}"
 export TEMP="${JOB_TMP}"
@@ -64,7 +65,7 @@ lerobot-train \
   --num_workers=8 \
   --save_freq="${SAVE_FREQ}" \
   --policy.device=cuda \
-  --policy.repo_id=justintiensmith/pi05_SP_Counting \
+  --policy.repo_id=justintiensmith/pi05_Merged_Reasoning_Tasks \
   --policy.push_to_hub=true \
   --policy.compile_model=false \
   --policy.input_features='{"observation.state": {"type": "STATE", "shape": [6]}, "observation.images.wrist": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.middle": {"type": "VISUAL", "shape": [3, 480, 640]}, "observation.images.above": {"type": "VISUAL", "shape": [3, 480, 640]}}' \
